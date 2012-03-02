@@ -1,0 +1,116 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+		  "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+	<title>Accounts</title>
+  </head>
+
+  <body>
+
+	<form name="uploadform" method="post" action="/upload" enctype="multipart/form-data">
+	  <input type="file" name="csvfile" id="csvfile" />
+	  <br>
+	  <input type="text" name="congfunds" />
+	  <br>
+	  <input type="text" name="totalfunds" />
+	  <br>
+	  <input type="submit" />
+	</form>
+
+	<!-- tmpl_if table-p -->
+
+	<table>
+	  <tr>
+		<!-- tmpl_loop headers -->
+		<th><!-- tmpl_var col1 --></th>
+		<th><!-- tmpl_var col2 --></th>
+		<th><!-- tmpl_var col3 --></th>
+		<!-- /tmpl_loop -->
+	  </tr>
+	  <!-- tmpl_loop data -->
+	  <tr>
+		<td><!-- tmpl_var col1 --></td>
+		<td><!-- tmpl_var col2 --></td>
+		<td><!-- tmpl_var col3 --></td>
+	  </tr>
+	  <!-- /tmpl_loop -->
+	</table>
+
+	<table>
+	  <tr>
+		<th>Category</th>
+		<th>Total</th>
+	  </tr>
+	  <tr>
+		<td>Congregation</td>
+		<td><!-- tmpl_var tot-c --></td>
+	  </tr>
+	  <tr>
+		<td>KHF</td>
+		<td><!-- tmpl_var tot-k --></td>
+	  </tr>
+	  <tr>
+		<td>WWW</td>
+		<td><!-- tmpl_var tot-w --></td>
+	  </tr>
+	  <tr>
+		<td>Expenses</td>
+		<td><!-- tmpl_var tot-e --></td>
+	  </tr>
+	</table>
+
+	<table>
+	  <tr>
+		<th>Label</th>
+		<th>Cong amount</th>
+		<th>Totals</th>
+		<th>Totals</th>
+	  </tr>
+	  <tr>
+		<td>Cong funds at start of month</td>
+		<td></td>
+		<td style="text-align:right"><!-- tmpl_var cong-start --></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>Cong expenses</td>
+		<td style="text-align:right"><!-- tmpl_var cong-expenses --></td>
+		<td></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>Cong funds at end of month</td>
+		<td></td>
+		<td style="text-align:right"><!-- tmpl_var cong-end --></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>Total funds at start of month</td>
+		<td></td>
+		<td></td>
+		<td style="text-align:right"><!-- tmpl_var total-start --></td>
+	  </tr>
+	  <tr>
+		<td>Total in</td>
+		<td></td>
+		<td style="text-align:right"><!-- tmpl_var total-in --></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>Total out</td>
+		<td></td>
+		<td style="text-align:right"><!-- tmpl_var total-out --></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>Total funds at end of month</td>
+		<td></td>
+		<td></td>
+		<td style="text-align:right"><!-- tmpl_var total-end --></td>
+	  </tr>
+	</table>
+
+	<!-- /tmpl_if -->
+
+  </body>
+</html>
