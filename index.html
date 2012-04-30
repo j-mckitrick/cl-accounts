@@ -10,9 +10,9 @@
 	<form name="uploadform" method="post" action="/upload" enctype="multipart/form-data">
 	  <input type="file" name="csvfile" id="csvfile" />
 	  <br>
-	  <input type="text" name="congfunds" />
+	  <input type="text" name="congfunds" />Cong
 	  <br>
-	  <input type="text" name="totalfunds" />
+	  <input type="text" name="totalfunds" />Total
 	  <br>
 	  <input type="submit" />
 	</form>
@@ -21,40 +21,33 @@
 
 	<table>
 	  <tr>
-		<!-- tmpl_loop headers -->
-		<th><!-- tmpl_var col1 --></th>
-		<th><!-- tmpl_var col2 --></th>
-		<th><!-- tmpl_var col3 --></th>
-		<!-- /tmpl_loop -->
-	  </tr>
-	  <!-- tmpl_loop data -->
-	  <tr>
-		<td><!-- tmpl_var col1 --></td>
-		<td><!-- tmpl_var col2 --></td>
-		<td><!-- tmpl_var col3 --></td>
-	  </tr>
-	  <!-- /tmpl_loop -->
-	</table>
-
-	<table>
-	  <tr>
 		<th>Category</th>
-		<th>Total</th>
-	  </tr>
-	  <tr>
-		<td>Congregation</td>
-		<td><!-- tmpl_var tot-c --></td>
-	  </tr>
-	  <tr>
-		<td>KHF</td>
-		<td><!-- tmpl_var tot-k --></td>
+		<th>In</th>
+		<th>Out</th>
 	  </tr>
 	  <tr>
 		<td>WWW</td>
 		<td><!-- tmpl_var tot-w --></td>
+		<td>(<!-- tmpl_var tot-w -->)</td>
+	  </tr>
+	  <tr>
+		<td>KHF</td>
+		<td><!-- tmpl_var tot-k --></td>
+		<td>(<!-- tmpl_var tot-k -->)</td>
+	  </tr>
+	  <tr>
+		<td>WGAH</td>
+		<td><!-- tmpl_var tot-a --></td>
+		<td>(<!-- tmpl_var tot-a -->)</td>
+	  </tr>
+	  <tr>
+		<td>Congregation</td>
+		<td><!-- tmpl_var tot-c --></td>
+		<td></td>
 	  </tr>
 	  <tr>
 		<td>Expenses</td>
+		<td></td>
 		<td><!-- tmpl_var tot-e --></td>
 	  </tr>
 	</table>
@@ -70,6 +63,12 @@
 		<td>Cong funds at start of month</td>
 		<td></td>
 		<td style="text-align:right"><!-- tmpl_var cong-start --></td>
+		<td></td>
+	  </tr>
+	  <tr>
+		<td>Cong contributions</td>
+		<td style="text-align:right"><!-- tmpl_var cong-contributions --></td>
+		<td></td>
 		<td></td>
 	  </tr>
 	  <tr>
@@ -99,7 +98,7 @@
 	  <tr>
 		<td>Total out</td>
 		<td></td>
-		<td style="text-align:right"><!-- tmpl_var total-out --></td>
+		<td style="text-align:right">(<!-- tmpl_var total-out -->)</td>
 		<td></td>
 	  </tr>
 	  <tr>
@@ -108,6 +107,23 @@
 		<td></td>
 		<td style="text-align:right"><!-- tmpl_var total-end --></td>
 	  </tr>
+	</table>
+
+	<table>
+	  <tr>
+		<!-- tmpl_loop headers -->
+		<th><!-- tmpl_var col1 --></th>
+		<th><!-- tmpl_var col2 --></th>
+		<th><!-- tmpl_var col3 --></th>
+		<!-- /tmpl_loop -->
+	  </tr>
+	  <!-- tmpl_loop data -->
+	  <tr>
+		<td><!-- tmpl_var col1 --></td>
+		<td><!-- tmpl_var col2 --></td>
+		<td><!-- tmpl_var col3 --></td>
+	  </tr>
+	  <!-- /tmpl_loop -->
 	</table>
 
 	<!-- /tmpl_if -->

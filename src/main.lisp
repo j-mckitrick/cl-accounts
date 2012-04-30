@@ -9,26 +9,35 @@
 
 (in-package #:accounts)
 
+(declaim (optimize debug))
+
 (defparameter *ignorable-chars* '(#\, #\$))
 (defparameter *currency-regex* "^\\$?([.,0-9]*)$")
 
 (defun get-excel-float (cell)
-  (parse-float
-   (car
-    (all-matches-as-strings *currency-regex*
-                            (remove-if (lambda (letter) (member letter *ignorable-chars* :test #'eql)) cell)))))
+  (let ((raw-cell (car
+                   (all-matches-as-strings *currency-regex*
+                                           (remove-if (lambda (letter) (member letter *ignorable-chars* :test #'eql)) cell)))))
+    (if (> (length raw-cell) 0)
+        (parse-float raw-cell)
+        0)))
 
 (defun process-transaction-rows (rows)
-  (let ((fixed-rows ()))
+  "For C, K, W, and A ROWS, capture the RECEPITS IN column.
+For E ROWS, capture the CHECKING OUT column."
+  (let ((fixed-rows ())
+        (i 7))
     (dolist (row rows)
-      (when (member (eighth row) '("C" "K" "W") :test #'string=)
+      (format t "Parsing row: ~A~%" i)
+      (when (member (eighth row) '("C" "K" "W" "A") :test #'string=)
         (let ((fixed-row (list (intern (eighth row) :keyword)
                                (get-excel-float (ninth row)))))
           (push fixed-row fixed-rows)))
       (when (member (eighth row) '("E") :test #'string=)
         (let ((fixed-row (list (intern (eighth row) :keyword)
-                               (get-excel-float (tenth row)))))
-          (push fixed-row fixed-rows))))
+                               (get-excel-float (nth 13 row)))))
+          (push fixed-row fixed-rows)))
+      (incf i))
     (nreverse fixed-rows)))
 
 (defparameter *parsed-data* ())
@@ -36,8 +45,14 @@
 (defparameter *rows* nil)
 (defparameter *display-fn* nil)
 
-(defun total-rows (rows row-type-keyword)
-  (apply #'+ (mapcar #'cadr (remove-if-not (lambda (row) (eql (car row) row-type-keyword)) rows))))
+(defparameter *total-congregation-contrib* 0)
+(defparameter *total-khf* 0)
+(defparameter *total-www* 0)
+(defparameter *total-wgah* 0)
+(defparameter *total-congregation-expenses* 0)
+
+(defun total-rows (rows &rest row-type-keywords)
+  (apply #'+ (mapcar #'cadr (remove-if-not (lambda (row) (member (car row) row-type-keywords)) rows))))
 
 (define-easy-handler
     (handle-home-get :uri "/" :default-request-type :get)
@@ -48,22 +63,26 @@
                               :table-p t
                               :headers *columns*
                               :data *rows*
-                              :tot-c (total-rows *parsed-data* :c)
-                              :tot-k (total-rows *parsed-data* :k)
-                              :tot-w (total-rows *parsed-data* :w)
-                              :tot-e (total-rows *parsed-data* :e)
+                              :tot-c *total-congregation-contrib*
+                              :tot-k *total-khf*
+                              :tot-w *total-www*
+                              :tot-a *total-wgah*
+                              :tot-e *total-congregation-expenses*
                               :cong-start *congregation-funds-start*
-                              :cong-end 0
-                              :cong-expenses 0
+                              :cong-contributions *total-congregation-contrib*
+                              :cong-expenses *total-congregation-expenses*
+                              :cong-end *congregation-funds-end*
                               :total-start *total-funds-start*
-                              :total-in 0
-                              :total-out 0
-                              :total-end 0))))
+                              :total-in *total-funds-in*
+                              :total-out *total-funds-out*
+                              :total-end  (format nil "~4,2f" (/ (round (* *total-funds-end* 100)) 100))))))
 
 (defparameter *congregation-funds-start* 0)
 (defparameter *congregation-funds-end* 0)
 (defparameter *total-funds-start* 0)
 (defparameter *total-funds-end* 0)
+(defparameter *total-funds-in* 0)
+(defparameter *total-funds-out* 0)
 
 (define-easy-handler
 	(handle-home-post :uri "/upload" :default-request-type :post)
@@ -76,11 +95,32 @@
         (declare (ignorable filename content-type))
         (setf *csv-data* (import-csv path))
         (setf *parsed-data* (process-transaction-rows (nthcdr 6 *csv-data*)))
+        (setf *total-congregation-contrib* (total-rows *parsed-data* :c)
+              *total-khf* (total-rows *parsed-data* :k)
+              *total-www* (total-rows *parsed-data* :w)
+              *total-wgah* (total-rows *parsed-data* :a)
+              *total-congregation-expenses* (total-rows *parsed-data* :e))
         (setf *rows* (mapcar (lambda (row) `(:col1 ,(first row) :col2 ,(second row))) *parsed-data*))))
     (when (> (length congfunds) 0)
       (setf *congregation-funds-start* (parse-float congfunds)))
     (when (> (length totalfunds) 0)
       (setf *total-funds-start* (parse-float totalfunds)))
+    (when (and *congregation-funds-start*
+               *total-funds-start*)
+      (setf *congregation-funds-end* (- (+ *congregation-funds-start*
+                                           *total-congregation-contrib*)
+                                        *total-congregation-expenses*)
+            *total-funds-in* (+ *total-congregation-contrib*
+                                *total-khf*
+                                *total-www*
+                                *total-wgah*)
+            *total-funds-out* (+ *total-khf*
+                                 *total-www*
+                                 *total-wgah*
+                                 *total-congregation-expenses*)
+            *total-funds-end* (- (+ *total-funds-start*
+                                    *total-funds-in*)
+                                 *total-funds-out*)))
     (redirect "/")))
 
 (defun import-csv (filename)
